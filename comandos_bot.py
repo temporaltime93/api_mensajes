@@ -10,11 +10,10 @@ comandos_registrados = []
 
 
 # Registrar comando para ayuda
-def crear_comando(nombre, descripcion, uso):
+def crear_comando(nombre, descripcion):
     comandos_registrados.append({
         "nombre": nombre,
         "descripcion": descripcion,
-        "uso": uso
     })
 
 # Función para crear embeds de respuesta
@@ -145,9 +144,9 @@ async def iniciar_busqueda(interaction: Interaction, clave_webhook: str):
 def setup(bot):
 
     # Registrar comandos para ayuda
-    crear_comando('ayuda', 'Muestra los comandos disponibles.', '!ayuda')
-    crear_comando('ID', 'Muestra tu id de discord.', '!id')
-    crear_comando("link", "Muetra el link del servidor", "!link")
+    crear_comando('!AYUDA', 'Muestra los comandos disponibles.')
+    crear_comando('!ID', 'Muestra tu id de discord.')
+    crear_comando("!LINK", "Muetra el link del servidor")
     @bot.command(name='borrar')
     @commands.has_permissions(manage_messages=True)
     async def borrar(ctx, cantidad: int):
@@ -184,7 +183,7 @@ def setup(bot):
             name = f"[2;30m[0m[2;35m[1;35m{cmd['nombre']}[0m[2;35m[0m"  # ✅ string
             value = f"[2;30m[0m[2;35m[0m[2;37m{cmd['descripcion']}[0m"
             separa = "[2;30m[0m[2;30m[1;30m----------------------------------[0m[2;30m[0m"
-            goku += separa+"\n" + name+"\n" + value
+            goku += separa+"\n" + name+"\n" + value +"\n"
 
 
         XDD = f"""```ansi
@@ -205,7 +204,49 @@ def setup(bot):
 
         await ctx.send(embed=ayuda_embed)
 
+    @bot.command(name="rol")
+    async def dar_rol_reunion(ctx, miembro: discord.Member = None):
+        if miembro is None:
+            await ctx.send("❌ Debes mencionar a un usuario. Ejemplo: `!rb @usuario`")
+            return
 
+        rol = ctx.guild.get_role(1385794926150811668)
+        if rol:
+            await miembro.add_roles(rol)
+            await ctx.send(f"✅ Se ha asignado el rol **{rol.name}** a {miembro.mention}")
+        else:
+            await ctx.send("❌ No se encontró el rol de reunión.")
+
+    @bot.event
+    async def on_raw_reaction_add(payload):
+        if payload.channel_id != 1385793093063807039:
+            return
+
+        guild = bot.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
+
+        if member.bot:
+            return
+
+        emoji_personalizado = discord.utils.get(guild.emojis, name="iPhone1675")
+        if not emoji_personalizado:
+            print("❌ No se encontró el emoji personalizado :iPhone1675:")
+            return
+
+        if str(payload.emoji) != str(emoji_personalizado):
+            return
+
+        rol_requerido = guild.get_role(1385467437323128893)
+        rol_entregado = guild.get_role(1385467000000000000)  # ← Cambia este ID al rol que deseas dar
+
+        if rol_requerido in member.roles:
+            await member.add_roles(rol_entregado)
+            print(f"✅ {member.name} recibió el rol '{rol_entregado.name}' por reaccionar.")
+        else:
+            canal = guild.get_channel(payload.channel_id)
+            mensaje = await canal.fetch_message(payload.message_id)
+            await mensaje.remove_reaction(payload.emoji, member)
+            print(f"❌ {member.name} intentó reaccionar sin el rol requerido.")
     @bot.event
     async def on_command_error(ctx, error):
         if isinstance(error, commands.MissingPermissions):
