@@ -186,12 +186,24 @@ def setup(bot):
 
     @bot.command(name='ayuda')
     async def ayuda(ctx):
-        ayuda_embed = discord.Embed(title="📘 Comandos disponibles", color=13948116, imagen="https://raw.githubusercontent.com/1RubiUwU1/ChatPgx/refs/heads/main/Frame%2015%201.png")
+        ayuda_embed = discord.Embed(
+            title="📘 Comandos disponibles",
+            color=13948116
+        )
+
         for cmd in comandos_registrados:
-            ayuda_embed.add_field(name=f"!{cmd['nombre']}", value=f"{cmd['descripcion']}\nUso: ```diff\n{cmd['uso']}```", inline=False)
-        
-        ayuda_embed.set_image(url="https://raw.githubusercontent.com/1RubiUwU1/ChatPgx/refs/heads/main/Frame%2015%201.png")
+            ayuda_embed.add_field(
+                name=f"!{cmd['nombre']}",
+                value=f"{cmd['descripcion']}\nUso: ```diff\n{cmd['uso']}```",
+                inline=False
+            )
+
+        ayuda_embed.set_image(
+            url="https://raw.githubusercontent.com/1RubiUwU1/ChatPgx/refs/heads/main/Frame%2015%201.png"
+        )
+
         await ctx.send(embed=ayuda_embed)
+
 
     @bot.event
     async def on_command_error(ctx, error):
