@@ -181,10 +181,9 @@ def setup(bot):
     async def ayuda(ctx):
         goku = ""
         for cmd in comandos_registrados:
-            name=f"""[2;35m!{cmd['nombre']}\n[0m""",
-            value=f"""[2;37m[1;37m{cmd['descripcion']}\nUso:\n{cmd['uso']}[0m[2;37m[0m"""
-            var = f"""{name}+{value}"""
-            goku = var + var  # ✅ string concatenado sin paréntesis
+            name = f"\x1b[2;35m!{cmd['nombre']}\n\x1b[0m"  # ✅ string
+            value = f"\x1b[2;37m\x1b[1;37m{cmd['descripcion']}\nUso:\n{cmd['uso']}\x1b[0m\x1b[2;37m\x1b[0m"
+            goku += name + value
 
 
         XDD = f"""```ansi
