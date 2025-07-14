@@ -36,10 +36,10 @@ WEBHOOKS = {
         "webhook_id": 1379160851432341695,
         "filtro": "desconocido"
     },
-    "SPIDEY_BOT": {
-        "nombre": "Spidey Bot",
+    "PROTOTYPE": {
+        "nombre": "PROTOTYPE",
         "canal_id": 1379157312073105451,
-        "webhook_id": 1234567890123456789,  # Reemplaza con su webhook ID real
+        "webhook_id": 1379160851269025934,  # Reemplaza con su webhook ID real
         "filtro": "[no encontrado]"
     },
     
@@ -181,13 +181,15 @@ def setup(bot):
     async def ayuda(ctx):
         goku = ""
         for cmd in comandos_registrados:
-            name = f"\x1b[2;35m!{cmd['nombre']}\n\x1b[0m"  # ✅ string
-            value = f"\x1b[2;37m\x1b[1;37m{cmd['descripcion']}\nUso:\n{cmd['uso']}\x1b[0m\x1b[2;37m\x1b[0m"
-            goku += name + value
+            name = f"[2;30m[0m[2;35m[1;35m{cmd['nombre']}[0m[2;35m[0m"  # ✅ string
+            value = f"[2;30m[0m[2;35m[0m[2;37m{cmd['descripcion']}[0m"
+            separa = "[2;30m[0m[2;30m[1;30m----------------------------------[0m[2;30m[0m"
+            goku += separa+"\n" + name+"\n" + value
 
 
         XDD = f"""```ansi
 {goku}
+[2;30m[0m[2;30m[1;30m----------------------------------[0m[2;30m[0m
 ```
 """
         ayuda_embed = discord.Embed(
