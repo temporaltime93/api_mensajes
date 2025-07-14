@@ -163,16 +163,11 @@ def setup(bot):
     async def id(ctx):
         user_id = ctx.author.id
         username = ctx.author.name
-        e = discord.Embed(
-            title="👤 Tu ID de usuario",
-            description=f"Hola **{username}**, tu ID es: `{user_id}`",
-            color=discord.Color.green()
-        )
-        await ctx.send(embed=e)
+        await ctx.send(embed=embed("👤 Tu ID de usuario", f"Hola **{username}**, tu ID es: `{user_id}`"))
     
     @bot.command(name="link")
     async def link(ctx):
-        await ctx.send(f"INVITA A TUS AMIGOS A NUESTRO SERVIDOR: https://discord.gg/2qcRceCmtC")
+        await ctx.send(embed=embed("INVITACION", "INVITA A TUS AMIGOS A NUESTRO SERVIDOR: https://discord.gg/2qcRceCmtC"))
     
 
     @bot.command(name="buscar")
@@ -193,8 +188,12 @@ def setup(bot):
 
         for cmd in comandos_registrados:
             ayuda_embed.add_field(
-                name=f"!{cmd['nombre']}",
-                value=f"{cmd['descripcion']}\nUso: ```diff\n{cmd['uso']}```",
+                name=f"""```ansi
+[2;35m!{cmd['nombre']}[0m
+```""",
+                value=f"""```ansi
+[2;37m[1;37m{cmd['descripcion']}\nUso:\n{cmd['uso']}[0m[2;37m[0m
+```""",
                 inline=False
             )
 
