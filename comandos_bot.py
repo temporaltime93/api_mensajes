@@ -70,10 +70,10 @@ class SeleccionWebhookView(ui.View):
         await interaction.response.defer()
         await iniciar_busqueda(interaction, "RUBI_BOT")
 
-    @ui.button(label="Spidey Bot", style=discord.ButtonStyle.success, custom_id="btn_spidey")
+    @ui.button(label="PROTOTYPE", style=discord.ButtonStyle.success, custom_id="btn_spidey")
     async def spidey_callback(self, interaction: Interaction, button: ui.Button):
         await interaction.response.defer()
-        await iniciar_busqueda(interaction, "SPIDEY_BOT")
+        await iniciar_busqueda(interaction, "PROTOTYPE")
 
 # --- Vista de menú desplegable para seleccionar embed ---
 class FiltroEmbedView(ui.View):
@@ -188,7 +188,6 @@ def setup(bot):
 
         XDD = f"""```ansi
 {goku}
-[2;30m[0m[2;30m[1;30m----------------------------------[0m[2;30m[0m
 ```
 """
         ayuda_embed = discord.Embed(
@@ -204,49 +203,6 @@ def setup(bot):
 
         await ctx.send(embed=ayuda_embed)
 
-    @bot.command(name="rol")
-    async def dar_rol_reunion(ctx, miembro: discord.Member = None):
-        if miembro is None:
-            await ctx.send("❌ Debes mencionar a un usuario. Ejemplo: `!rb @usuario`")
-            return
-
-        rol = ctx.guild.get_role(1385794926150811668)
-        if rol:
-            await miembro.add_roles(rol)
-            await ctx.send(f"✅ Se ha asignado el rol **{rol.name}** a {miembro.mention}")
-        else:
-            await ctx.send("❌ No se encontró el rol de reunión.")
-
-    @bot.event
-    async def on_raw_reaction_add(payload):
-        if payload.channel_id != 1385793093063807039:
-            return
-
-        guild = bot.get_guild(payload.guild_id)
-        member = guild.get_member(payload.user_id)
-
-        if member.bot:
-            return
-
-        emoji_personalizado = discord.utils.get(guild.emojis, name="iPhone1675")
-        if not emoji_personalizado:
-            print("❌ No se encontró el emoji personalizado :iPhone1675:")
-            return
-
-        if str(payload.emoji) != str(emoji_personalizado):
-            return
-
-        rol_requerido = guild.get_role(1385467437323128893)
-        rol_entregado = guild.get_role(1385467000000000000)  # ← Cambia este ID al rol que deseas dar
-
-        if rol_requerido in member.roles:
-            await member.add_roles(rol_entregado)
-            print(f"✅ {member.name} recibió el rol '{rol_entregado.name}' por reaccionar.")
-        else:
-            canal = guild.get_channel(payload.channel_id)
-            mensaje = await canal.fetch_message(payload.message_id)
-            await mensaje.remove_reaction(payload.emoji, member)
-            print(f"❌ {member.name} intentó reaccionar sin el rol requerido.")
     @bot.event
     async def on_command_error(ctx, error):
         if isinstance(error, commands.MissingPermissions):
