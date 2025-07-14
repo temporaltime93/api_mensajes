@@ -184,11 +184,16 @@ def setup(bot):
             name=f"""[2;35m!{cmd['nombre']}\n[0m""",
             value=f"""[2;37m[1;37m{cmd['descripcion']}\nUso:\n{cmd['uso']}[0m[2;37m[0m"""
             var = f"""{name}+{value}"""
-            goku = var, var
+            goku = var + var  # ✅ string concatenado sin paréntesis
 
+
+        XDD = f"""```ansi
+{goku}
+```
+"""
         ayuda_embed = discord.Embed(
             title="📘 Comandos disponibles",
-            description=goku,
+            description= XDD,
             color=13948116
         )
 
