@@ -3,7 +3,9 @@ import discord
 from discord import SelectOption, ui, Interaction
 import datetime
 import os
+from discord import app_commands
 
+tree = app_commands.CommandTree(bot)
 # Lista de comandos registrados para el embed de ayuda
 comandos_registrados = []
 
