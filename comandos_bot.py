@@ -197,6 +197,25 @@ def setup(bot):
 
         await ctx.send(embed=ayuda_embed)
 
+    @bot.command(name="reu")
+    @commands.has_permissions(manage_roles=True)
+    async def reunion(ctx, miembro: discord.Member):
+        ID_ROL_REUNION = 1385794926150811668
+        rol = ctx.guild.get_role(ID_ROL_REUNION)
+
+        if rol is None:
+            await ctx.send("❌ No se encontró el rol de reunión.")
+            return
+
+        if rol in miembro.roles:
+            await miembro.remove_roles(rol, reason="Comando !reu - remover")
+            estado = f"❌ Se removió el rol `{rol.name}` de {miembro.mention}."
+        else:
+            await miembro.add_roles(rol, reason="Comando !reu - asignar")
+            estado = f"✅ Se asignó el rol `{rol.name}` a {miembro.mention}."
+
+        await ctx.send(embed=embed("📌 Comando REU ejecutado", estado))
+
     @bot.event
     async def on_command_error(ctx, error):
         if isinstance(error, commands.MissingPermissions):
@@ -210,46 +229,47 @@ def setup(bot):
             print("🧨 Error:", error)
 
     # --- Fix para evento de reacción ---
+    # --- Evento de reacción con asignación de rol ---
     @bot.event
     async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
+        # ! Validar canal específico
+        ID_CANAL_REACCION = 1385793093063807039
+        ID_ROL_ENTREGAR = 1385467437323128893
+
+        if payload.channel_id != ID_CANAL_REACCION:
+            return  # Ignorar si no es en el canal esperado
+
         guild = bot.get_guild(payload.guild_id)
         if guild is None:
-            return  # ! No se pudo obtener la guild
+            return
 
-        # Obtener el miembro (puede no venir en payload, especialmente si no está cacheado)
+        # Obtener miembro que reaccionó
         member = payload.member
         if member is None:
             try:
                 member = await guild.fetch_member(payload.user_id)
             except discord.NotFound:
-                return  # ! No se encontró al miembro
+                return
             except discord.HTTPException:
-                return  # ! Error de conexión con Discord
+                return
 
         if member.bot:
-            return  # * Ignorar reacciones de bots
+            return  # * Ignorar bots
 
-        # Obtener canal y mensaje
-        channel = guild.get_channel(payload.channel_id)
-        if not channel:
-            return  # ! No se encontró el canal
-
-        try:
-            message = await channel.fetch_message(payload.message_id)
-        except discord.NotFound:
-            return  # ! Mensaje eliminado o inexistente
-        except discord.Forbidden:
-            return  # ! Sin permisos para ver el mensaje
-        except discord.HTTPException:
-            return  # ! Otro error al obtener el mensaje
+        # Rol que se debe entregar
+        rol = guild.get_role(ID_ROL_ENTREGAR)
+        if rol is None:
+            print("❌ Rol no encontrado en la guild.")
+            return
 
         emoji = payload.emoji.name
-
-        # ? Aquí va la lógica personalizada para reaccionar
-        # Por ejemplo:
         if emoji == "✅":
-            await channel.send(f"✅ {member.mention} reaccionó al mensaje con ✅")
-        elif emoji == "❌":
-            await channel.send(f"❌ {member.display_name} canceló con ❌")
-
-        # todo: Agrega aquí lógica de roles, votos, acciones personalizadas, etc.
+            try:
+                await member.add_roles(rol, reason="Reacción con ✅ en canal autorizado")
+                canal = guild.get_channel(payload.channel_id)
+                if canal:
+                    await canal.send(f"✅ {member.mention} recibió el rol `{rol.name}`.", delete_after=5)
+            except discord.Forbidden:
+                print("❌ No tengo permisos para asignar el rol.")
+            except discord.HTTPException as e:
+                print(f"❌ Error HTTP al asignar rol: {e}")
