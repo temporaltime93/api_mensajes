@@ -23,9 +23,9 @@ def embed(titulo, descripcion):
     e = discord.Embed(
         title=titulo,
         description=descripcion,
-        color=discord.Color.green()
+        color=13948116
     )
-    e.set_image(url="https://firebasestorage.googleapis.com/v0/b/fotos-b8a54.appspot.com/o/Slide%2016_9%20-%204%20(1)%20(1)-min.jpg?alt=media&token=ff085a8b-21ad-4052-9950-16eec59212cd")
+    e.set_image(url="https://raw.githubusercontent.com/1RubiUwU1/ChatPgx/refs/heads/main/Frame%2015%201.png")
     return e
 
 CANAL_SALIDA_ID = 1380015764030881903
@@ -146,9 +146,6 @@ async def iniciar_busqueda(interaction: Interaction, clave_webhook: str):
 def setup(bot):
 
     # Registrar comandos para ayuda
-    crear_comando('borrar', 'Borra mensajes del canal.', '!borrar <cantidad>')
-    crear_comando('link', 'Guarda un enlace para subirlo luego.', '!link <url>')
-    crear_comando('actualizar', 'Sube el enlace guardado a Firebase.', '!actualizar')
     crear_comando('ayuda', 'Muestra los comandos disponibles.', '!ayuda')
     crear_comando('ID', 'Muestra tu id de discord.', '!id')
     crear_comando("link", "Muetra el link del servidor", "!link")
@@ -189,9 +186,11 @@ def setup(bot):
 
     @bot.command(name='ayuda')
     async def ayuda(ctx):
-        ayuda_embed = discord.Embed(title="📘 Comandos disponibles", color=discord.Color.green())
+        ayuda_embed = discord.Embed(title="📘 Comandos disponibles", color=13948116, imagen="https://raw.githubusercontent.com/1RubiUwU1/ChatPgx/refs/heads/main/Frame%2015%201.png")
         for cmd in comandos_registrados:
             ayuda_embed.add_field(name=f"!{cmd['nombre']}", value=f"{cmd['descripcion']}\nUso: ```diff\n{cmd['uso']}```", inline=False)
+        
+        ayuda_embed.set_image(url="https://raw.githubusercontent.com/1RubiUwU1/ChatPgx/refs/heads/main/Frame%2015%201.png")
         await ctx.send(embed=ayuda_embed)
 
     @bot.event
