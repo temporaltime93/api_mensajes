@@ -7,8 +7,7 @@ import os
 # Lista de comandos registrados para el embed de ayuda
 comandos_registrados = []
 
-# Variable global para almacenar el enlace temporalmente
-link_grok = ""
+
 
 # Registrar comando para ayuda
 def crear_comando(nombre, descripcion, uso):
@@ -178,24 +177,21 @@ def setup(bot):
             return
         view = SeleccionWebhookView()
         await canal_salida.send("📌 Selecciona de qué webhook quieres buscar embeds:", view=view)
-
     @bot.command(name='ayuda')
     async def ayuda(ctx):
+        goku = ""
+        for cmd in comandos_registrados:
+            name=f"""[2;35m!{cmd['nombre']}\n[0m""",
+            value=f"""[2;37m[1;37m{cmd['descripcion']}\nUso:\n{cmd['uso']}[0m[2;37m[0m"""
+            var = f"""{name}+{value}"""
+            goku = var, var
+
         ayuda_embed = discord.Embed(
             title="📘 Comandos disponibles",
+            description=goku,
             color=13948116
         )
 
-        for cmd in comandos_registrados:
-            ayuda_embed.add_field(
-                name=f"""```ansi
-[2;35m!{cmd['nombre']}[0m
-```""",
-                value=f"""```ansi
-[2;37m[1;37m{cmd['descripcion']}\nUso:\n{cmd['uso']}[0m[2;37m[0m
-```""",
-                inline=False
-            )
 
         ayuda_embed.set_image(
             url="https://raw.githubusercontent.com/1RubiUwU1/ChatPgx/refs/heads/main/Frame%2015%201.png"
