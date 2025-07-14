@@ -142,6 +142,53 @@ def setup(bot):
     crear_comando('!AYUDA', 'Muestra los comandos disponibles.')
     crear_comando('!ID', 'Muestra tu id de discord.')
     crear_comando("!LINK", "Muetra el link del servidor")
+    @bot.tree.command(name="publicar", description="Publica un embed en el canal oficial con una etiqueta.")
+    @discord.app_commands.describe(
+        titulo="Título de la publicación",
+        descripcion="Descripción del contenido",
+        imagen_url="URL de la imagen (opcional)",
+        etiqueta="Categoría de la publicación"
+    )
+    @discord.app_commands.choices(
+        etiqueta=[
+            discord.app_commands.Choice(name="🛒 PRODUCTOS", value="1394042653850603541"),
+            discord.app_commands.Choice(name="🛠️ SERVICIOS", value="1394042830569078845"),
+            discord.app_commands.Choice(name="📰 NOVEDADES", value="1394042935527346207"),
+        ]
+    )
+    async def publicar(
+        interaction: discord.Interaction,
+        titulo: str,
+        descripcion: str,
+        imagen_url: str = None,
+        etiqueta: discord.app_commands.Choice[str] = None
+    ):
+        canal_publicacion_id = 1393989837169885194
+        canal = interaction.guild.get_channel(canal_publicacion_id)
+
+        if canal is None:
+            await interaction.response.send_message("❌ No se encontró el canal de publicaciones.", ephemeral=True)
+            return
+
+        # Crear el embed
+        embed_publicacion = discord.Embed(
+            title=titulo,
+            description=descripcion,
+            color=0x00BFFF
+        )
+        if imagen_url:
+            embed_publicacion.set_image(url=imagen_url)
+
+        # Enviar el mensaje con etiqueta (si hay)
+        try:
+            mensaje = await canal.send(
+                embed=embed_publicacion,
+                flags=discord.MessageFlags.crossposted,
+                applied_tags=[int(etiqueta.value)] if etiqueta else None
+            )
+            await interaction.response.send_message("✅ Publicación enviada correctamente.", ephemeral=True)
+        except Exception as e:
+            await interaction.response.send_message(f"❌ Error al enviar la publicación: `{e}`", ephemeral=True)
 
     @bot.command(name='borrar')
     @commands.has_permissions(manage_messages=True)
@@ -214,7 +261,7 @@ def setup(bot):
             await miembro.add_roles(rol, reason="Comando !reu - asignar")
             estado = f"✅ Se asignó el rol `{rol.name}` a {miembro.mention}."
 
-        await ctx.send(embed=embed("📌 Comando REU ejecutado", estado))
+        await ctx.send(embed=embed("📌 Comando REU ejecutado", estado), delete_after=5)
 
     @bot.event
     async def on_command_error(ctx, error):
