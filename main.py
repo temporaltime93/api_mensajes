@@ -1,28 +1,36 @@
 from flask import Flask, request, jsonify
 import requests
-from bs4 import BeautifulSoup
+import re
 
 app = Flask(__name__)
 
+# * CORS: permitir acceso desde cualquier origen
+from flask_cors import CORS
+CORS(app)
+
 @app.route("/get-m3u8")
 def get_m3u8():
-    page_url = request.args.get("link")
-    if not page_url:
-        return jsonify({"error": "Falta el parámetro 'link'"}), 400
+    url = request.args.get("link")
+    if not url:
+        return jsonify({"error": "Falta el parámetro link"}), 400
 
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(page_url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.text, "html.parser")
+        response = requests.get(url, headers=headers)
+        html = response.text
 
-        for tag in soup.find_all("source"):
-            src = tag.get("src")
-            if src and ".m3u8" in src:
-                return jsonify({"found": True, "m3u8": src})
-
-        return jsonify({"found": False, "message": "No se encontró enlace .m3u8"})
+        # ? Buscar un .m3u8 en el HTML
+        match = re.search(r'(https?://[^\s"\']+\.m3u8[^\s"\']*)', html)
+        if match:
+            return jsonify({
+                "found": True,
+                "m3u8": match.group(1)
+            })
+        else:
+            return jsonify({
+                "found": False,
+                "message": "No se encontró un enlace M3U8."
+            })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-app.run(host="0.0.0.0", port=3000)
