@@ -1,12 +1,14 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import requests
 import re
 
 app = Flask(__name__)
+CORS(app)  # * Habilita CORS para todos los dominios
 
-# * CORS: permitir acceso desde cualquier origen
-from flask_cors import CORS
-CORS(app)
+@app.route("/")
+def index():
+    return "API M3U8 activa"
 
 @app.route("/get-m3u8")
 def get_m3u8():
@@ -16,10 +18,9 @@ def get_m3u8():
 
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
         html = response.text
 
-        # ? Buscar un .m3u8 en el HTML
         match = re.search(r'(https?://[^\s"\']+\.m3u8[^\s"\']*)', html)
         if match:
             return jsonify({
