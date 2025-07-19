@@ -4,34 +4,35 @@ import requests
 import re
 
 app = Flask(__name__)
-CORS(app)  # * Habilita CORS para todos los dominios
+CORS(app)  # * Permite llamadas desde otros dominios (CORS)
 
-@app.route("/")
-def index():
-    return "API M3U8 activa"
-
-@app.route("/get-m3u8")
-def get_m3u8():
-    url = request.args.get("link")
-    if not url:
-        return jsonify({"error": "Falta el parámetro link"}), 400
+# * Función para extraer .m3u8
+def extraer_m3u8(url):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
+    }
 
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers, timeout=10)
-        html = response.text
+        resp = requests.get(url, headers=headers, timeout=10)
+        html = resp.text
 
-        match = re.search(r'(https?://[^\s"\']+\.m3u8[^\s"\']*)', html)
-        if match:
-            return jsonify({
-                "found": True,
-                "m3u8": match.group(1)
-            })
-        else:
-            return jsonify({
-                "found": False,
-                "message": "No se encontró un enlace M3U8."
-            })
-
+        # ? Busca cualquier link que termine en .m3u8
+        m3u8_links = re.findall(r'https?://[^\s\'"]+\.m3u8[^\s\'"]*', html)
+        return m3u8_links[0] if m3u8_links else None
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return None
+
+@app.route('/get-m3u8', methods=['GET'])
+def get_m3u8():
+    link = request.args.get('link')
+    if not link:
+        return jsonify({"error": "No se proporcionó el parámetro 'link'"}), 400
+
+    result = extraer_m3u8(link)
+    if result:
+        return jsonify({"m3u8": result})
+    else:
+        return jsonify({"error": "No se encontró ningún link m3u8"}), 404
+
+if __name__ == '__main__':
+    app.run()
